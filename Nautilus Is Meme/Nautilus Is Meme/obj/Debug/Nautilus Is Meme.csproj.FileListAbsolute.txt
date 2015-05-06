@@ -1,0 +1,13 @@
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\Nautilus Is Meme.exe.config
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\Nautilus Is Meme.exe
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\Nautilus Is Meme.pdb
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\LeagueSharp.Common.dll
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\LeagueSharp.dll
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\SharpDX.dll
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\clipper_library.dll
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\LeagueSharp.Sandbox.dll
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\bin\Release\LeagueSharp.xml
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\obj\Debug\Nautilus Is Meme.csprojResolveAssemblyReference.cache
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\obj\Debug\Nautilus Is Meme.exe
+C:\Users\gage\Documents\Visual Studio 2013\Projects\Nautilus Is Meme\Nautilus Is Meme\obj\Debug\Nautilus Is Meme.pdb
