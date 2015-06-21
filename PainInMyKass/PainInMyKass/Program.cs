@@ -73,9 +73,9 @@ namespace PainInMyKass
             mixedMenu.AddItem(new MenuItem("useQHarass", "Use Q").SetValue(true));
             mixedMenu.AddItem(new MenuItem("Harass", "Harass").SetValue(new KeyBind('C', KeyBindType.Press)));
 
-            Menu fleeMenu = Menu.AddSubMenu(new Menu("RunNigger", "RunNigger"));
+            Menu fleeMenu = Menu.AddSubMenu(new Menu("Flee", "RunNigger"));
             fleeMenu.AddItem(new MenuItem("useR", "Use R").SetValue(true));
-            fleeMenu.AddItem(new MenuItem("RunNigger", "RunNigger").SetValue(new KeyBind('T', KeyBindType.Press)));
+            fleeMenu.AddItem(new MenuItem("RunNigger", "Flee").SetValue(new KeyBind('T', KeyBindType.Press)));
 
             Menu.AddToMainMenu();
             Drawing.OnDraw += Drawing_OnDraw;
