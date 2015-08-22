@@ -79,7 +79,7 @@ namespace Orianna
                 var harassMenu = new Menu("Harass Settings", "Harass");
                 harassMenu.AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
                 harassMenu.AddItem(new MenuItem("UseWHarass", "Use W").SetValue(true));
-                harassMenu.AddItem(new MenuItem("UseWHarass", "Use E").SetValue(true));
+                harassMenu.AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
 
 
                 var laneClearMenu = new Menu("Lane Clear Settings", "LaneClearFarm");
