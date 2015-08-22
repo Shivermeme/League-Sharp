@@ -73,9 +73,9 @@ namespace PainInMyKass
             mixedMenu.AddItem(new MenuItem("useQHarass", "Use Q").SetValue(true));
             mixedMenu.AddItem(new MenuItem("Harass", "Harass").SetValue(new KeyBind('C', KeyBindType.Press)));
 
-            Menu fleeMenu = Menu.AddSubMenu(new Menu("Flee", "RunNigger"));
+            Menu fleeMenu = Menu.AddSubMenu(new Menu("flee", "Flee"));
             fleeMenu.AddItem(new MenuItem("useR", "Use R").SetValue(true));
-            fleeMenu.AddItem(new MenuItem("RunNigger", "Flee").SetValue(new KeyBind('T', KeyBindType.Press)));
+            fleeMenu.AddItem(new MenuItem("flee", "Flee").SetValue(new KeyBind('T', KeyBindType.Press)));
 
             Menu.AddToMainMenu();
             Drawing.OnDraw += Drawing_OnDraw;
@@ -107,7 +107,7 @@ namespace PainInMyKass
 
 
        
-        private static void RunNigger()
+        private static void Flee()
         {
             if (!Menu.Item("useR").GetValue<bool>())
                 return;
@@ -141,9 +141,9 @@ namespace PainInMyKass
                 Forcepulse();
             }
 
-            if (Menu.Item("RunNigger").GetValue<KeyBind>().Active)
+            if (Menu.Item("Flee").GetValue<KeyBind>().Active)
             {
-                RunNigger();
+                Flee();
             }
         }
 
