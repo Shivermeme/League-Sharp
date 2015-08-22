@@ -76,7 +76,7 @@ namespace TheLichKing
                 if (target.IsValid && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
                 {
                     MockingShout();
-                    SpinningSlash();
+                    
                 }
                 UndyingRage();
                 Bloodlust();
