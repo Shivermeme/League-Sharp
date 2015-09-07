@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading;
 
@@ -123,6 +124,11 @@
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
         }
 
+        /// <summary>
+        /// Fired when there is a enemy gapcloser.
+        /// </summary>
+        /// <param name="gapcloser">The gapcloser.</param>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (!gapcloser.Sender.IsValidTarget() || !Menu.Item("EGapcloser").IsActive())
@@ -134,6 +140,12 @@
            
         }
 
+        /// <summary>
+        /// Fired when there is an interruptable target.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="Interrupter2.InterruptableTargetEventArgs"/> instance containing the event data.</param>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         private static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
         {
             if (!sender.IsValidTarget(Q.Range) || args.DangerLevel != Interrupter2.DangerLevel.High)
@@ -152,7 +164,7 @@
         }
 
         /// <summary>
-        /// Obj_s a i_ base_ on new path.
+        /// Called when an object has a new path.
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="args">The <see cref="GameObjectNewPathEventArgs"/> instance containing the event data.</param>
@@ -286,7 +298,7 @@
                 }
             }
 
-            if (useE && E.IsReady())
+            if (useE && E.IsReady() && HookedTarget == null)
             {
                 var isFleeing = Player.Distance(target) < target.Distance(Game.CursorPos);
                 var prediction = E.GetPrediction(target);
@@ -358,7 +370,7 @@
                 }
             }
 
-            if (useE && E.IsReady())
+            if (useE && E.IsReady() && HookedTarget == null)
             {
                 var isFleeing = Player.Distance(target) < target.Distance(Game.CursorPos);
                 var prediction = E.GetPrediction(target);
