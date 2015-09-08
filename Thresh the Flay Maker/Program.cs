@@ -119,6 +119,8 @@
             E.SetSkillshot(1, 110, 2000, false, SkillshotType.SkillshotLine);
 
             CreateMenu();
+            
+            Game.PrintChat("<font color=\"#7CFC00\"><b>Thresh the Flay Maker:</b></font> by ChewyMoon & Shiver loaded");
 
             Game.OnUpdate += Game_OnUpdate;
             Obj_AI_Base.OnNewPath += Obj_AI_Base_OnNewPath;
