@@ -12,6 +12,8 @@
 
     using SharpDX;
 
+    using Color = System.Drawing.Color;
+
     /// <summary>
     /// The program class.
     /// </summary>
@@ -122,6 +124,39 @@
             Obj_AI_Base.OnNewPath += Obj_AI_Base_OnNewPath;
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        /// <summary>
+        /// Called when the game is drawn.
+        /// </summary>
+        /// <param name="args">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private static void Drawing_OnDraw(EventArgs args)
+        {
+            var drawQ = Menu.Item("DrawQ").IsActive();
+            var drawW = Menu.Item("DrawW").IsActive();
+            var drawE = Menu.Item("DrawE").IsActive();
+            var drawR = Menu.Item("DrawR").IsActive();
+
+            if (drawQ)
+            {
+                Render.Circle.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Aqua : Color.Red);
+            }
+
+            if (drawW)
+            {
+                Render.Circle.DrawCircle(Player.Position, W.Range, W.IsReady() ? Color.Aqua : Color.Red);
+            }
+
+            if (drawE)
+            {
+                Render.Circle.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Aqua : Color.Red);
+            }
+
+            if (drawR)
+            {
+                Render.Circle.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Aqua : Color.Red);
+            }
         }
 
         /// <summary>
@@ -453,6 +488,13 @@
             hookMenu.AddItem(new MenuItem("QImmobile", "Q on Immobile").SetValue(true));
             // TODO: Predict flash with advanced algorithms?
             Menu.AddSubMenu(hookMenu);
+
+            var drawMenu = new Menu("Drawing Settings", "Draw");
+            drawMenu.AddItem(new MenuItem("DrawQ", "Draw Q").SetValue(true));
+            drawMenu.AddItem(new MenuItem("DrawW", "Draw Q").SetValue(false));
+            drawMenu.AddItem(new MenuItem("DrawE", "Draw Q").SetValue(false));
+            drawMenu.AddItem(new MenuItem("DrawR", "Draw Q").SetValue(false));
+            Menu.AddSubMenu(drawMenu);
 
             Menu.AddToMainMenu();
         }
