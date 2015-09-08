@@ -493,9 +493,9 @@
 
             var drawMenu = new Menu("Drawing Settings", "Draw");
             drawMenu.AddItem(new MenuItem("DrawQ", "Draw Q").SetValue(true));
-            drawMenu.AddItem(new MenuItem("DrawW", "Draw Q").SetValue(false));
-            drawMenu.AddItem(new MenuItem("DrawE", "Draw Q").SetValue(false));
-            drawMenu.AddItem(new MenuItem("DrawR", "Draw Q").SetValue(false));
+            drawMenu.AddItem(new MenuItem("DrawW", "Draw W").SetValue(false));
+            drawMenu.AddItem(new MenuItem("DrawE", "Draw E").SetValue(false));
+            drawMenu.AddItem(new MenuItem("DrawR", "Draw R").SetValue(false));
             Menu.AddSubMenu(drawMenu);
 
             Menu.AddToMainMenu();
