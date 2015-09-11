@@ -384,7 +384,7 @@
                 {
                     Q.Cast();
                 }
-                else
+                else if (HookedTarget == null)
                 {
                     Q.Cast(target);
                 }
