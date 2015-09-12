@@ -10,6 +10,8 @@ using Color = System.Drawing.Color;
 
 namespace Project_zed
 {
+    using System.Diagnostics.CodeAnalysis;
+
     class Program
     {
         /// <summary>
@@ -67,11 +69,20 @@ namespace Project_zed
         }
 
         /// <summary>
+        /// Gets or sets the last target.
+        /// </summary>
+        /// <value>
+        /// The last target.
+        /// </value>
+        private static Obj_AI_Hero LastTarget { get; set; }
+
+        /// <summary>
         /// Gets or sets the orbwalker.
         /// </summary>
         /// <value>
         /// The orbwalker.
         /// </value>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         private static Orbwalking.Orbwalker Orbwalker { get; set; }
 
         /// <summary>
@@ -106,7 +117,7 @@ namespace Project_zed
             ObjectManager.Player.LastCastedSpellName();
             ShadowManager.Initialize();
 
-            Game.PrintChat("<font color=\"#7CFC00\"><b>Project Zed:</b></font> by Shiver loaded");
+            Game.PrintChat("<font color=\"#7CFC00\"><b>Project Zed:</b></font> by Shiver & ChewyMoon loaded");
 
             Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
@@ -146,12 +157,12 @@ namespace Project_zed
 
             if (ShadowManager.WShadow != null)
             {
-                Render.Circle.DrawCircle(ShadowManager.WShadow.Position, 100, Color.BlueViolet);
+                Render.Circle.DrawCircle(ShadowManager.WShadow.Position, 100, Color.Orange);
             }
 
             if (ShadowManager.RShadow != null)
             {
-                Render.Circle.DrawCircle(ShadowManager.RShadow.Position, 100, Color.BlueViolet);
+                Render.Circle.DrawCircle(ShadowManager.RShadow.Position, 100, Color.Orange);
             }
         }
 
@@ -161,6 +172,16 @@ namespace Project_zed
         /// <param name="args">The <see cref="EventArgs"/> instance containing the event data.</param>
         private static void Game_OnUpdate(EventArgs args)
         {
+            if (LastTarget != null)
+            {
+                // Update source positions
+                var objects = new List<Vector3>() { Player.ServerPosition };
+                objects.AddRange(ShadowManager.Shadows.Select(x => x.Position));
+
+                var closestObject = objects.OrderBy(x => x.Distance(LastTarget.ServerPosition)).First();
+                Q.UpdateSourcePosition(closestObject);
+            }
+           
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -183,6 +204,17 @@ namespace Project_zed
             }
 
             KillSteal();
+            AutoE();
+        }
+
+        private static void AutoE()
+        {
+            if (!Menu.Item("AutoE").IsActive() || !ShadowManager.CanCastE)
+            {
+                return;
+            }
+
+            E.Cast();
         }
 
         /// <summary>
@@ -205,23 +237,22 @@ namespace Project_zed
             {
                 return;
             }
+      
+            var useQ = Menu.Item("UseQLastQ").GetValue<bool>();      
+            var useE = Menu.Item("UseELastE").GetValue<bool>();
 
-            var qlh = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All);
-            //// var elh = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All);      
-            var useQl = Menu.Item("UseQLastQ").GetValue<bool>();      
-            var useEl = Menu.Item("UseELastE").GetValue<bool>();
-
-            foreach (var minion in qlh)
+            if (useQ && Q.IsReady())
             {
-                if (useQl && Q.IsReady() && Player.Distance(minion.ServerPosition) < Q.Range && minion.Health < Player.GetSpellDamage(minion, SpellSlot.Q))
-                {
-                    Q.Cast(minion);
-                }
-                       
-                if (useEl && E.IsReady() && Player.Distance(minion.ServerPosition) < E.Range && minion.Health <  Player.GetSpellDamage(minion, SpellSlot.E))
-                {
-                    E.Cast();
-                }
+                var minion =
+                    MinionManager.GetMinions(Q.Range)
+                        .FirstOrDefault(x => x.IsValidTarget(Q.Range) && Q.GetDamage(x) >= x.Health);
+
+                Q.Cast(minion);
+            }
+
+            if (useE && E.IsReady() && MinionManager.GetMinions(E.Range).Any(x => E.GetDamage(x) >= x.Health))
+            {
+                E.Cast();
             }
         }
 
@@ -237,8 +268,8 @@ namespace Project_zed
                 return;
             }
 
-            var qwc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All);
-            var ewc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All);     
+            var qwc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
+            var ewc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range);     
             var useqlc = Menu.Item("UseQLaneClear").GetValue<bool>();         
             var useelc = Menu.Item("UseELaneClear").GetValue<bool>();
 
@@ -276,18 +307,75 @@ namespace Project_zed
         /// </summary>
         private static void DoCombo()
         {
-            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
+            var target =
+                TargetSelector.GetTarget(
+                    ShadowManager.RShadowState == ShadowManager.ShadowState.Cast ? R.Range : Q.Range,
+                    TargetSelector.DamageType.Physical);
+
+            if (target == null)
+            {
+                CloseGap();
+            }
 
             if (!target.IsValidTarget())
             {
                 return;
+            } 
+               
+            var useQCombo = Menu.Item("UseQCombo").IsActive();
+            var useWCombo = Menu.Item("UseWCombo").IsActive();
+            var useECombo = Menu.Item("UseECombo").IsActive();
+            var useRCombo = Menu.Item("UseRCombo").IsActive();        
+
+            if (useRCombo && R.IsReady() && ShadowManager.RShadowState == ShadowManager.ShadowState.Cast)
+            {
+                R.CastOnUnit(target);
             }
 
-            var useQCombo = Menu.Item("UseQCOmbo").IsActive();
-            var useWCombo = Menu.Item("UseWCOmbo").IsActive();
-            var useECombo = Menu.Item("UseECOmbo").IsActive();
-            var useRCombo = Menu.Item("UseRCOmbo").IsActive();
+            if (useWCombo && W.IsReady() && ShadowManager.WShadowState == ShadowManager.ShadowState.Cast)
+            {
+                var position = Player.ServerPosition.Extend(target.ServerPosition, W.Range);
+                W.Cast(position);
+            }
 
+            if (useWCombo && W.IsReady() && ShadowManager.WShadowState == ShadowManager.ShadowState.Swap
+                && ShadowManager.CanSwapToW(target, LastTarget))
+            {
+                W.Cast();
+            }
+
+            if (useECombo && E.IsReady() && ShadowManager.CanCastE)
+            {
+                E.Cast();
+            }
+
+            if (useQCombo && Q.IsReady())
+            {
+                Q.Cast(target);
+            }     
+
+            LastTarget = target;
+        }
+
+        /// <summary>
+        /// Closes the gap.
+        /// </summary>
+        private static void CloseGap()
+        {
+            if (ShadowManager.WShadowState == ShadowManager.ShadowState.Swap)
+            {
+                if (ShadowManager.WShadow.Position.CountEnemiesInRange(Orbwalking.GetRealAutoAttackRange(Player)) == 1)
+                {
+                    W.Cast();
+                }
+            }
+            else if (ShadowManager.RShadowState == ShadowManager.ShadowState.Swap)
+            {
+                if (ShadowManager.RShadow.Position.CountEnemiesInRange(Orbwalking.GetRealAutoAttackRange(Player)) == 1)
+                {
+                    R.Cast();
+                }
+            }
         }
 
         /// <summary>
@@ -337,6 +425,8 @@ namespace Project_zed
             wMenu.AddItem(new MenuItem("ShadowSwapHP", "Dont swap to shadow if my HP below %").SetValue(new Slider(40)));
             wMenu.AddItem(new MenuItem("DontWIntoEnemies", "Dont W into Enemies").SetValue(new Slider(3, 1, 5)));
             wMenu.AddItem(new MenuItem("ShadowBackDead", "Swap to shadow if enemy is dead").SetValue(true));
+            wMenu.AddItem(new MenuItem("AutoE", "Auto use E").SetValue(true));
+            Menu.AddSubMenu(wMenu);
 
             var ksMenu = new Menu("Kill Steal Settings", "KS");
             ksMenu.AddItem(new MenuItem("UseQKS", "Use Q").SetValue(true));

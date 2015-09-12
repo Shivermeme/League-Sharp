@@ -9,8 +9,32 @@ namespace Project_zed
     using LeagueSharp;
     using LeagueSharp.Common;
 
-    class ShadowManager
+    /// <summary>
+    /// Manages Zed's Shadows.
+    /// </summary>
+    public class ShadowManager
     {
+        /// <summary>
+        /// The state of a shadow.
+        /// </summary>
+        public enum ShadowState
+        {
+            /// <summary>
+            /// The shadow spell is not ready.
+            /// </summary>
+            NotReady,
+
+            /// <summary>
+            /// The shadow can be casted, without swapping.
+            /// </summary>
+            Cast,
+
+            /// <summary>
+            /// The shadow will be swapped to.
+            /// </summary>
+            Swap
+        }
+
         /// <summary>
         /// Gets the w shadow.
         /// </summary>
@@ -26,6 +50,89 @@ namespace Project_zed
         /// The r shadow.
         /// </value>
         public static GameObject RShadow { get; private set; }
+
+        /// <summary>
+        /// Gets the state of the w shadow.
+        /// </summary>
+        /// <value>
+        /// The state of the w shadow.
+        /// </value>
+        public static ShadowState WShadowState
+        {
+            get
+            {
+                if (!Program.W.IsReady())
+                {
+                    return ShadowState.NotReady;
+                }
+
+                return Program.W.Instance.Name.Equals("ZedW") ? ShadowState.Cast : ShadowState.Swap;
+            }
+        }
+
+        /// <summary>
+        /// Gets the state of the w shadow.
+        /// </summary>
+        /// <value>
+        /// The state of the w shadow.
+        /// </value>
+        public static ShadowState RShadowState
+        {
+            get
+            {
+                if (!Program.R.IsReady())
+                {
+                    return ShadowState.NotReady;
+                }
+
+                return Program.R.Instance.Name.Equals("ZedR") ? ShadowState.Cast : ShadowState.Swap;
+            }
+        }
+
+        /// <summary>
+        /// Gets the shadows.
+        /// </summary>
+        /// <value>
+        /// The shadows.
+        /// </value>
+        public static IEnumerable<GameObject> Shadows
+        {
+            get
+            {
+                var list = new List<GameObject>();
+
+                if (WShadow != null)
+                {
+                    list.Add(WShadow);
+                }
+
+                if (RShadow != null)
+                {
+                    list.Add(RShadow);
+                }
+
+                return list;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance can cast e.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance can cast e; otherwise, <c>false</c>.
+        /// </value>
+        public static bool CanCastE
+        {
+            get
+            {
+                return
+                    HeroManager.Enemies.Any(
+                        x =>
+                        x.IsValidTarget()
+                        && (Program.E.IsInRange(x)
+                            || Shadows.Any(y => y.Position.Distance(x.ServerPosition) <= Program.E.Range)));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the last r casted.
@@ -52,7 +159,7 @@ namespace Project_zed
         /// <returns>True if the player can safely swap to the W shadow.</returns>
         public static bool CanSwapToW(Obj_AI_Hero target, Obj_AI_Hero lastTarget)
         {
-            if (Program.W.Instance.Name.Equals("ZedW") || WShadow == null)
+            if (WShadowState != ShadowState.Swap || WShadow == null)
             {
                 return false;
             }
@@ -67,26 +174,34 @@ namespace Project_zed
                 return false;
             }
 
-            if (lastTarget.IsDead)
+            if (lastTarget != null)
             {
-                return true;
+                if (lastTarget.IsDead)
+                {
+                    return true;
+                }
             }
 
             return true;
         }
 
         private static void Game_OnUpdate(EventArgs args)
-        {
-            
-            if (!WShadow.IsValid || WShadow.IsDead)
+        {      
+            if (WShadow != null)
             {
-                WShadow = null;
+                if (!WShadow.IsValid || WShadow.IsDead)
+                {
+                    WShadow = null;
+                }
             }
 
-            if (!RShadow.IsValid || RShadow.IsDead)
+            if (RShadow != null)
             {
-                RShadow = null;
-            }
+                if (!RShadow.IsValid || RShadow.IsDead)
+                {
+                    RShadow = null;
+                }
+            }          
         }
 
         private static void GameObject_OnCreate(GameObject sender, EventArgs args)
