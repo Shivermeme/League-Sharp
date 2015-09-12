@@ -65,10 +65,13 @@
         /// <value>
         /// The player.
         /// </value>
-        private static Obj_AI_Hero Player { get
+        private static Obj_AI_Hero Player
         {
-            return ObjectManager.Player;
-        } }
+            get
+            {
+                return ObjectManager.Player;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the orbwalker.
@@ -92,7 +95,7 @@
             }
         }
 
-     
+
 
         /// <summary>
         /// The main entry point of the application.
@@ -119,7 +122,7 @@
             E.SetSkillshot(1, 110, 2000, false, SkillshotType.SkillshotLine);
 
             CreateMenu();
-            
+
             Game.PrintChat("<font color=\"#7CFC00\"><b>Thresh the Flay Maker:</b></font> by ChewyMoon & Shiver loaded");
 
             Game.OnUpdate += Game_OnUpdate;
@@ -174,7 +177,7 @@
             }
 
             E.Cast(gapcloser.Sender);
-           
+
         }
 
         /// <summary>
@@ -246,16 +249,16 @@
 
             switch (Orbwalker.ActiveMode)
             {
-               case Orbwalking.OrbwalkingMode.Combo:
+                case Orbwalking.OrbwalkingMode.Combo:
                     DoCombo();
                     break;
-               case Orbwalking.OrbwalkingMode.Mixed:
+                case Orbwalking.OrbwalkingMode.Mixed:
                     DoHarass();
                     break;
             }
 
             AutoW();
-            AutoQ();          
+            AutoQ();
         }
 
         /// <summary>
@@ -302,7 +305,7 @@
                     W.Cast(W.GetPrediction(ally).CastPosition);
                 }
             }
-          
+
 
         }
 
@@ -426,7 +429,7 @@
                         isFleeing
                             ? prediction.CastPosition
                             : vector);
-                }            
+                }
             }
 
             if (useR && R.IsReady() && Player.CountEnemiesInRange(R.Range) >= ultEnemies)
@@ -484,7 +487,7 @@
             flayMenu.AddItem(new MenuItem("EInterrupt", "E to Interrupt").SetValue(true));
             flayMenu.AddItem(new MenuItem("EGapcloser", "E on Incoming Gapcloser").SetValue(true));
             Menu.AddSubMenu(flayMenu);
-            
+
             var hookMenu = new Menu("Hook Settings", "Hook");
             hookMenu.AddItem(new MenuItem("QInterrupt", "Q to Interrupt").SetValue(true));
             hookMenu.AddItem(new MenuItem("QImmobile", "Q on Immobile").SetValue(true));

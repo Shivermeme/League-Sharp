@@ -1,13 +1,1 @@
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\Thresh the Flay Maker.exe.config
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\Thresh the Flay Maker.exe
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\Thresh the Flay Maker.pdb
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\LeagueSharp.Common.dll
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\LeagueSharp.dll
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\SharpDX.Direct3D9.dll
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\SharpDX.dll
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\clipper_library.dll
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\LeagueSharp.Sandbox.dll
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\bin\Release\LeagueSharp.xml
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\obj\Debug\Thresh the Flay Maker.csprojResolveAssemblyReference.cache
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\obj\Debug\Thresh the Flay Maker.exe
-E:\Coding\Projects\C#\L#\League-Sharp\Thresh the Flay Maker\obj\Debug\Thresh the Flay Maker.pdb
+E:\Coding\Projects\C#\Other\Thresh the Flay Maker\Thresh the Flay Maker\bin\Debug\Thresh the Flay Maker.exe.config
