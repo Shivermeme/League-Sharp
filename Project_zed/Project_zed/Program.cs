@@ -12,13 +12,52 @@ namespace Project_zed
 {
     class Program
     {
-        private static Spell Q { get; set; }
-        private static Spell W { get; set; }
-        private static Spell E { get; set; }
-        private static Spell R { get; set; }
+        /// <summary>
+        /// Gets or sets the q.
+        /// </summary>
+        /// <value>
+        /// The q.
+        /// </value>
+        public static Spell Q { get; set; }
 
-        private static Menu Menu { get; set; }
+        /// <summary>
+        /// Gets or sets the w.
+        /// </summary>
+        /// <value>
+        /// The w.
+        /// </value>
+        public static Spell W { get; set; }
 
+        /// <summary>
+        /// Gets or sets the e.
+        /// </summary>
+        /// <value>
+        /// The e.
+        /// </value>
+        public static Spell E { get; set; }
+
+        /// <summary>
+        /// Gets or sets the r.
+        /// </summary>
+        /// <value>
+        /// The r.
+        /// </value>
+        public static Spell R { get; set; }
+
+        /// <summary>
+        /// Gets or sets the menu.
+        /// </summary>
+        /// <value>
+        /// The menu.
+        /// </value>
+        public static Menu Menu { get; set; }
+
+        /// <summary>
+        /// Gets the player.
+        /// </summary>
+        /// <value>
+        /// The player.
+        /// </value>
         private static Obj_AI_Hero Player
         {
             get
@@ -27,18 +66,33 @@ namespace Project_zed
             }
         }
 
+        /// <summary>
+        /// Gets or sets the orbwalker.
+        /// </summary>
+        /// <value>
+        /// The orbwalker.
+        /// </value>
         private static Orbwalking.Orbwalker Orbwalker { get; set; }
 
+        /// <summary>
+        /// The entry point of the application.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
-        static void Game_OnGameLoad(EventArgs args)
+        /// <summary>
+        /// Fired when the game loads.
+        /// </summary>
+        /// <param name="args">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private static void Game_OnGameLoad(EventArgs args)
         {
-
             if (Player.ChampionName != "Zed")
+            {
                 return;
+            }
 
             Q = new Spell(SpellSlot.Q, 900f);
             W = new Spell(SpellSlot.W, 600f);
@@ -49,6 +103,9 @@ namespace Project_zed
 
             CreateMenu();
 
+            ObjectManager.Player.LastCastedSpellName();
+            ShadowManager.Initialize();
+
             Game.PrintChat("<font color=\"#7CFC00\"><b>Project Zed:</b></font> by Shiver loaded");
 
             Game.OnUpdate += Game_OnUpdate;
@@ -56,7 +113,11 @@ namespace Project_zed
 
         }
 
-        static void Drawing_OnDraw(EventArgs args)
+        /// <summary>
+        /// Fired when the game draws itself.
+        /// </summary>
+        /// <param name="args">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private static void Drawing_OnDraw(EventArgs args)
         {
             var drawQ = Menu.Item("DrawQ").IsActive();
             var drawW = Menu.Item("DrawW").IsActive();
@@ -82,9 +143,23 @@ namespace Project_zed
             {
                 Render.Circle.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Aqua : Color.Red);
             }
+
+            if (ShadowManager.WShadow != null)
+            {
+                Render.Circle.DrawCircle(ShadowManager.WShadow.Position, 100, Color.BlueViolet);
+            }
+
+            if (ShadowManager.RShadow != null)
+            {
+                Render.Circle.DrawCircle(ShadowManager.RShadow.Position, 100, Color.BlueViolet);
+            }
         }
 
-        static void Game_OnUpdate(EventArgs args)
+        /// <summary>
+        /// Fired when the game updates it self.
+        /// </summary>
+        /// <param name="args">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private static void Game_OnUpdate(EventArgs args)
         {
             switch (Orbwalker.ActiveMode)
             {
@@ -107,35 +182,34 @@ namespace Project_zed
                 DoHarass();
             }
 
-
-
             KillSteal();
         }
 
+        /// <summary>
+        /// Steals kills from your teammates.
+        /// </summary>
         private static void KillSteal()
         {
          
         }
 
 
+        /// <summary>
+        /// Does the last hit.
+        /// </summary>
         private static void DoLastHit()
         {
             var lhenergy = Menu.Item("LHEnergy").GetValue<Slider>().Value;
 
-            if (Player.Mana <= lhenergy)
+            if (Player.ManaPercent <= lhenergy)
             {
                 return;
             }
 
             var qlh = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All);
-
-            //var elh = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All);
-            
-            var useQl = Menu.Item("UseQLastQ").GetValue<bool>();
-            
+            //// var elh = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All);      
+            var useQl = Menu.Item("UseQLastQ").GetValue<bool>();      
             var useEl = Menu.Item("UseELastE").GetValue<bool>();
-
-            
 
             foreach (var minion in qlh)
             {
@@ -143,8 +217,7 @@ namespace Project_zed
                 {
                     Q.Cast(minion);
                 }
-
-            
+                       
                 if (useEl && E.IsReady() && Player.Distance(minion.ServerPosition) < E.Range && minion.Health <  Player.GetSpellDamage(minion, SpellSlot.E))
                 {
                     E.Cast();
@@ -152,6 +225,9 @@ namespace Project_zed
             }
         }
 
+        /// <summary>
+        /// Does the lane clear.
+        /// </summary>
         private static void DoLaneClear()
         {
             var wcenergy = Menu.Item("LCEnergy").GetValue<Slider>().Value;
@@ -162,11 +238,8 @@ namespace Project_zed
             }
 
             var qwc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All);
-
-            var ewc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All);
-            
-            var useqlc = Menu.Item("UseQLaneClear").GetValue<bool>();
-            
+            var ewc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All);     
+            var useqlc = Menu.Item("UseQLaneClear").GetValue<bool>();         
             var useelc = Menu.Item("UseELaneClear").GetValue<bool>();
 
             if (Q.IsReady() && useqlc)
@@ -181,7 +254,6 @@ namespace Project_zed
 
             if (E.IsReady() && useelc)
             {
-
                 var elccircle = E.GetCircularFarmLocation(ewc, E.Range);
 
                 if (elccircle.MinionsHit >= 2)
@@ -191,11 +263,17 @@ namespace Project_zed
             }
         }
 
+        /// <summary>
+        /// Does the harass.
+        /// </summary>
         private static void DoHarass()
         {
             
         }
 
+        /// <summary>
+        /// Does the combo.
+        /// </summary>
         private static void DoCombo()
         {
             var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
@@ -212,6 +290,9 @@ namespace Project_zed
 
         }
 
+        /// <summary>
+        /// Creates the menu.
+        /// </summary>
         private static void CreateMenu()
         {
           Menu = new Menu("Project Zed", "ProjectZed", true);
@@ -243,7 +324,7 @@ namespace Project_zed
             var lasthitMenu = new Menu("Last Hit Settings", "Lasthit");
             lasthitMenu.AddItem(new MenuItem("UseQLastQ", "Use Q Lasthit").SetValue(false));
             lasthitMenu.AddItem(new MenuItem("UseELastE", "Use E Lasthit").SetValue(true));
-            lasthitMenu.AddItem(new MenuItem("LHEnergy", "Use % of Energy in Lasthit").SetValue(new Slider(80, 1, 100)));
+            lasthitMenu.AddItem(new MenuItem("LHEnergy", "Use % of Energy in Lasthit").SetValue(new Slider(80, 1)));
             Menu.AddSubMenu(lasthitMenu);
 
             var laneClearMenu = new Menu("Lane Clear Settings", "LaneClear");
@@ -251,6 +332,11 @@ namespace Project_zed
             laneClearMenu.AddItem(new MenuItem("UseELaneClear", "Use E").SetValue(true));
             laneClearMenu.AddItem(new MenuItem("LCEnergy", "Use % Energy in LaneClear>")).SetValue(new Slider(60, 1, 100));
             Menu.AddSubMenu(laneClearMenu);
+
+            var wMenu = new Menu("Shadow Settings", "ShadowSettings");
+            wMenu.AddItem(new MenuItem("ShadowSwapHP", "Dont swap to shadow if my HP below %").SetValue(new Slider(40)));
+            wMenu.AddItem(new MenuItem("DontWIntoEnemies", "Dont W into Enemies").SetValue(new Slider(3, 1, 5)));
+            wMenu.AddItem(new MenuItem("ShadowBackDead", "Swap to shadow if enemy is dead").SetValue(true));
 
             var ksMenu = new Menu("Kill Steal Settings", "KS");
             ksMenu.AddItem(new MenuItem("UseQKS", "Use Q").SetValue(true));
