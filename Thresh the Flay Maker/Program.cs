@@ -112,6 +112,11 @@
         /// <param name="args">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private static void OnGameLoad(System.EventArgs args)
         {
+            if (Player.ChampionName != "Thresh")
+            {
+                return;
+            }
+            
             Q = new Spell(SpellSlot.Q, 1075);
             W = new Spell(SpellSlot.W, 950);
             E = new Spell(SpellSlot.E, 500);
