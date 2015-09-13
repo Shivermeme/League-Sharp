@@ -532,9 +532,9 @@ namespace Project_zed
             Menu.AddSubMenu(comboMenu);
 
             var harassMenu = new Menu("Harass Settings", "Harass");
-            harassMenu.AddItem(new MenuItem("UseQHarass", "Use Q Harass"));
-            harassMenu.AddItem(new MenuItem("UseWHarass", "Use W to Harass"));
-            harassMenu.AddItem(new MenuItem("UseEHarass", "Use E Harass"));
+            harassMenu.AddItem(new MenuItem("UseQHarass", "Use Q Harass").SetValue(true));
+            harassMenu.AddItem(new MenuItem("UseWHarass", "Use W to Harass").SetValue(true));
+            harassMenu.AddItem(new MenuItem("UseEHarass", "Use E Harass").SetValue(true));
             harassMenu.AddItem(
                 new MenuItem("HarassToggle", "Harass! (Toggle)").SetValue(new KeyBind(84, KeyBindType.Toggle)));
             Menu.AddSubMenu(harassMenu);
