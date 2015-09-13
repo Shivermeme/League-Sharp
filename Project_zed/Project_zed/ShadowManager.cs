@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace Project_zed
 {
+    using System.Diagnostics.CodeAnalysis;
+
     using LeagueSharp;
     using LeagueSharp.Common;
 
@@ -174,17 +176,13 @@ namespace Project_zed
                 return false;
             }
 
-            if (lastTarget != null)
-            {
-                if (lastTarget.IsDead)
-                {
-                    return true;
-                }
-            }
-
-            return true;
+            return !(WShadow.Position.Distance(target.ServerPosition) > ObjectManager.Player.Distance(target));
         }
 
+        /// <summary>
+        /// Handles the OnUpdate event of the Game class.
+        /// </summary>
+        /// <param name="args">The <see cref="EventArgs"/> instance containing the event data.</param>
         private static void Game_OnUpdate(EventArgs args)
         {      
             if (WShadow != null)
@@ -204,6 +202,11 @@ namespace Project_zed
             }          
         }
 
+        /// <summary>
+        /// Handles the OnCreate event of the GameObject class.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="EventArgs"/> instance containing the event data.</param>
         private static void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             if (!sender.IsValid<Obj_AI_Base>())
@@ -229,6 +232,28 @@ namespace Project_zed
                 RShadow = sender;
                 LastRCasted = Environment.TickCount;
             }
+        }
+
+        /// <summary>
+        /// Determines whether this instance can swap to r with the specified target.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="lastTarget">The last target.</param>
+        /// <returns>If the player can swap to the ult shadow.</returns>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        public static bool CanSwapToR(Obj_AI_Hero target, Obj_AI_Hero lastTarget)
+        {
+            if (Program.Menu.Item("ShadowSwapHP").GetValue<Slider>().Value > ObjectManager.Player.HealthPercent)
+            {
+                return false;
+            }
+
+            if (RShadow.Position.Distance(target.ServerPosition) > ObjectManager.Player.Distance(target))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

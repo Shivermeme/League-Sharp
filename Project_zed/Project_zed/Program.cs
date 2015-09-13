@@ -12,6 +12,11 @@ namespace Project_zed
 {
     using System.Diagnostics.CodeAnalysis;
 
+    using LeagueSharp.Common.Data;
+
+    /// <summary>
+    /// The program class.
+    /// </summary>
     class Program
     {
         /// <summary>
@@ -77,6 +82,40 @@ namespace Project_zed
         private static Obj_AI_Hero LastTarget { get; set; }
 
         /// <summary>
+        /// Gets or sets the botrk.
+        /// </summary>
+        /// <value>
+        /// The botrk.
+        /// </value>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        private static Items.Item Botrk { get; set; }
+
+        /// <summary>
+        /// Gets or sets the cutlass.
+        /// </summary>
+        /// <value>
+        /// The cutlass.
+        /// </value>
+        private static Items.Item Cutlass { get; set; }
+
+        /// <summary>
+        /// Gets or sets the hydra.
+        /// </summary>
+        /// <value>
+        /// The hydra.
+        /// </value>
+        private static Items.Item Hydra { get; set; }
+
+        /// <summary>
+        /// Gets or sets the tiamat.
+        /// </summary>
+        /// <value>
+        /// The tiamat.
+        /// </value>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        private static Items.Item Tiamat { get; set; }
+
+        /// <summary>
         /// Gets or sets the orbwalker.
         /// </summary>
         /// <value>
@@ -117,11 +156,81 @@ namespace Project_zed
             ObjectManager.Player.LastCastedSpellName();
             ShadowManager.Initialize();
 
+            Botrk = new Items.Item((int)ItemId.Blade_of_the_Ruined_King, 550);
+            Cutlass = new Items.Item((int) ItemId.Bilgewater_Cutlass, 550);
+            Hydra = new Items.Item((int)ItemId.Ravenous_Hydra_Melee_Only, 400);
+            Tiamat = new Items.Item((int)ItemId.Tiamat_Melee_Only);
+
+            Utility.HpBarDamageIndicator.DamageToUnit = DamageToUnit;
+            Utility.HpBarDamageIndicator.Enabled = true;
+
             Game.PrintChat("<font color=\"#7CFC00\"><b>Project Zed:</b></font> by Shiver & ChewyMoon loaded");
 
             Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+        }
 
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (!sender.IsValidTarget())
+            {
+                return;
+            }
+
+            var dangeDbItem = Spelldata.Spells.FirstOrDefault(x => args.SData.Name.Equals(x.SDataName));
+
+            if (dangeDbItem == null)
+            {
+                return;
+            }
+
+            if (Player.Distance(sender) > dangeDbItem.CastRange)
+            {
+                return;
+            }
+
+            if (!dangeDbItem.HitType.Contains(HitType.Danger) || !dangeDbItem.HitType.Contains(HitType.Ultimate))
+            {
+                return;
+            }
+
+            if (Menu.Item("CastRDodge").IsActive() && ShadowManager.RShadowState == ShadowManager.ShadowState.Cast)
+            {
+                var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
+
+                if (target != null)
+                {
+                    R.CastOnUnit(target);
+                }
+            }
+            else if (Menu.Item("ShadowSwapDodge").IsActive())
+            {
+                if (ShadowManager.RShadowState == ShadowManager.ShadowState.Swap)
+                {
+                    R.Cast();
+                }
+                else if (ShadowManager.WShadowState == ShadowManager.ShadowState.Swap)
+                {
+                    W.Cast();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the damage to a specific unit.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <returns>The damage that the combo will deal to a target.</returns>
+        private static float DamageToUnit(Obj_AI_Hero target)
+        {
+            return
+                (float)
+                ((Q.IsReady() ? Q.GetDamage(target) : 0) + (E.IsReady() ? E.GetDamage(target) : 0)
+                 + (R.IsReady() ? R.GetDamage(target) : 0) + Player.GetAutoAttackDamage(target) * 2
+                 + (Botrk.IsReady() ? Player.GetItemDamage(target, Damage.DamageItems.Botrk) : 0)
+                 + (Hydra.IsReady() ? Player.GetItemDamage(target, Damage.DamageItems.Hydra) : 0)
+                 + (Cutlass.IsReady() ? Player.GetItemDamage(target, Damage.DamageItems.Bilgewater) : 0));
         }
 
         /// <summary>
@@ -185,7 +294,7 @@ namespace Project_zed
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    DoCombo();
+                    DoCombo(true);
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     DoHarass();
@@ -198,6 +307,11 @@ namespace Project_zed
                     break;
             }
 
+            if (Menu.Item("AllInCombo").IsActive())
+            {
+                DoCombo(false);
+            }
+
             if (Menu.Item("HarassToggle").IsActive() && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Mixed)
             {
                 DoHarass();
@@ -207,6 +321,9 @@ namespace Project_zed
             AutoE();
         }
 
+        /// <summary>
+        /// Automatics the e.
+        /// </summary>
         private static void AutoE()
         {
             if (!Menu.Item("AutoE").IsActive() || !ShadowManager.CanCastE)
@@ -305,7 +422,8 @@ namespace Project_zed
         /// <summary>
         /// Does the combo.
         /// </summary>
-        private static void DoCombo()
+        /// <param name="checkHp">if set to <c>true</c> will use R only if the target is killable.</param>
+        private static void DoCombo(bool checkHp)
         {
             var target =
                 TargetSelector.GetTarget(
@@ -317,7 +435,7 @@ namespace Project_zed
                 CloseGap();
             }
 
-            if (!target.IsValidTarget())
+            if (target == null || !target.IsValidTarget())
             {
                 return;
             } 
@@ -329,7 +447,19 @@ namespace Project_zed
 
             if (useRCombo && R.IsReady() && ShadowManager.RShadowState == ShadowManager.ShadowState.Cast)
             {
-                R.CastOnUnit(target);
+                if (checkHp && DamageToUnit(target) > target.Health)
+                {
+                    R.CastOnUnit(target);
+                }
+                else if (!checkHp)
+                {
+                    R.CastOnUnit(target);
+                }
+            }
+
+            if (useRCombo && R.IsReady() && ShadowManager.RShadowState == ShadowManager.ShadowState.Swap && ShadowManager.CanSwapToR(target, LastTarget))
+            {
+                R.Cast();
             }
 
             if (useWCombo && W.IsReady() && ShadowManager.WShadowState == ShadowManager.ShadowState.Cast)
@@ -344,15 +474,15 @@ namespace Project_zed
                 W.Cast();
             }
 
-            if (useECombo && E.IsReady() && ShadowManager.CanCastE)
-            {
-                E.Cast();
-            }
-
             if (useQCombo && Q.IsReady())
             {
                 Q.Cast(target);
-            }     
+            }
+
+            if (useECombo && E.IsReady() && ShadowManager.CanCastE)
+            {
+                E.Cast();
+            }          
 
             LastTarget = target;
         }
@@ -398,7 +528,7 @@ namespace Project_zed
             comboMenu.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             comboMenu.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             comboMenu.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-            //comboMenu.AddItem(new MenuItem("UseRifKillable", "Use R if selected target killable").SetValue(true));
+            comboMenu.AddItem(new MenuItem("AllInCombo", "All in Combo").SetValue(new KeyBind(83, KeyBindType.Press)));
             Menu.AddSubMenu(comboMenu);
 
             var harassMenu = new Menu("Harass Settings", "Harass");
@@ -421,16 +551,21 @@ namespace Project_zed
             laneClearMenu.AddItem(new MenuItem("LCEnergy", "Use % Energy in LaneClear>")).SetValue(new Slider(60, 1, 100));
             Menu.AddSubMenu(laneClearMenu);
 
-            var wMenu = new Menu("Shadow Settings", "ShadowSettings");
-            wMenu.AddItem(new MenuItem("ShadowSwapHP", "Dont swap to shadow if my HP below %").SetValue(new Slider(40)));
-            wMenu.AddItem(new MenuItem("DontWIntoEnemies", "Dont W into Enemies").SetValue(new Slider(3, 1, 5)));
-            wMenu.AddItem(new MenuItem("ShadowBackDead", "Swap to shadow if enemy is dead").SetValue(true));
-            wMenu.AddItem(new MenuItem("AutoE", "Auto use E").SetValue(true));
-            Menu.AddSubMenu(wMenu);
+            var ultDodge = new Menu("Ult Dodge Settings", "DodgeUlt");
+            ultDodge.AddItem(new MenuItem("CastRDodge", "Cast R on Unit to Dodge Dangerous").SetValue(true));
+            ultDodge.AddItem(new MenuItem("ShadowSwapDodge", "Swap with Shadow to Dodge Dangerous").SetValue(true));
+            Menu.AddSubMenu(ultDodge);
 
-            var ksMenu = new Menu("Kill Steal Settings", "KS");
-            ksMenu.AddItem(new MenuItem("UseQKS", "Use Q").SetValue(true));
-            Menu.AddSubMenu(ksMenu);
+            var shadowMenu = new Menu("Shadow Settings", "ShadowSettings");
+            shadowMenu.AddItem(new MenuItem("ShadowSwapHP", "Dont swap to shadow if my HP below %").SetValue(new Slider(40)));
+            shadowMenu.AddItem(new MenuItem("DontWIntoEnemies", "Dont W into Enemies").SetValue(new Slider(3, 1, 5)));
+            shadowMenu.AddItem(new MenuItem("ShadowBackDead", "Swap to shadow if enemy is dead").SetValue(true));
+            shadowMenu.AddItem(new MenuItem("AutoE", "Auto use E").SetValue(true));
+            Menu.AddSubMenu(shadowMenu);
+
+            var killstealMenu = new Menu("Kill Steal Settings", "KS");
+            killstealMenu.AddItem(new MenuItem("UseQKS", "Use Q").SetValue(true));
+            Menu.AddSubMenu(killstealMenu);
 
             var drawingMenu = new Menu("Drawing Settings", "Drawings");
             drawingMenu.AddItem(new MenuItem("DrawQ", "Draw Q").SetValue(true));
