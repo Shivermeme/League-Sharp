@@ -115,9 +115,9 @@ namespace Syndra_Balls_to_the_Wall
             E = new Spell(SpellSlot.E);
             R = new Spell(SpellSlot.R);
 
-            Q.SetSkillshot(0.25f, 180, 1750, false, SkillshotType.SkillshotCircle);
-            W.SetSkillshot(0.25f, 180, 1750, false, SkillshotType.SkillshotCircle);
-            E.SetSkillshot(0.25f, 45 * 0.5f, 2500, false, SkillshotType.SkillshotCone);
+            Q.SetSkillshot(0.25f, 180f, 1750f, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(0.25f, 180f, 1750f, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(0.25f, (float) (45 * 0.5f), 2500f, false, SkillshotType.SkillshotCone);
 
             CreateMenu();
 
@@ -125,6 +125,22 @@ namespace Syndra_Balls_to_the_Wall
 
             Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
+            Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
+        }
+
+        static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        {
+            if (!Menu.Item("InterruptQE").GetValue<bool>())
+            {
+                return;
+            }
+
+            if (Player.Distance(sender) < E.Range && E.IsReady())
+            {
+                Q.Cast(sender.ServerPosition);
+                E.Cast(sender.ServerPosition);
+            }
+
         }
 
         /// <summary>
@@ -182,6 +198,10 @@ namespace Syndra_Balls_to_the_Wall
             drawingMenu.AddItem(new MenuItem("DrawE", "Draw E").SetValue(false));
             drawingMenu.AddItem(new MenuItem("DrawR", "Draw R").SetValue(false));
             Menu.AddSubMenu(drawingMenu);
+
+            var interruptMenu = new Menu("Interrupt Settings", "Interrupt!");
+            interruptMenu.AddItem(new MenuItem("InterruptQE", "Interrupt with QE").SetValue(true));
+            interruptMenu.AddItem(new MenuItem("InterruptDangerous", "Interrupt Only Dangerous").SetValue(false));
 
             Menu.AddToMainMenu();
         }
