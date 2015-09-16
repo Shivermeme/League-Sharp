@@ -1,27 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LeagueSharp;
-using LeagueSharp.Common;
-using SharpDX;
-using Color = System.Drawing.Color;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Program.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The program.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace Syndra_Balls_to_the_Wall
 {
-    class Program
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Drawing;
+    using System.Linq;
+
+    using LeagueSharp;
+    using LeagueSharp.Common;
+
+    /// <summary>
+    /// The program.
+    /// </summary>
+    public class Program
     {
 
+        /// <summary>
+        /// Gets or sets the q.
+        /// </summary>
+        /// <value>
+        /// The q.
+        /// </value>
         public static Spell Q { get; set; }
+
+        /// <summary>
+        /// Gets or sets the w.
+        /// </summary>
+        /// <value>
+        /// The w.
+        /// </value>
         public static Spell W { get; set; }
+
+        /// <summary>
+        /// Gets or sets the e.
+        /// </summary>
+        /// <value>
+        /// The e.
+        /// </value>
         public static Spell E { get; set; }
+
+        /// <summary>
+        /// Gets or sets the r.
+        /// </summary>
+        /// <value>
+        /// The r.
+        /// </value>
         public static Spell R { get; set; }
 
+        /// <summary>
+        /// Gets or sets the menu.
+        /// </summary>
+        /// <value>
+        /// The menu.
+        /// </value>
         public static Menu Menu { get; set; }
 
+        /// <summary>
+        /// Gets or sets the orbwalker.
+        /// </summary>
+        /// <value>
+        /// The orbwalker.
+        /// </value>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         public static Orbwalking.Orbwalker Orbwalker { get; set; }
 
+        /// <summary>
+        /// Gets the player.
+        /// </summary>
+        /// <value>
+        /// The player.
+        /// </value>
         private static Obj_AI_Hero Player
         {
             get
@@ -30,11 +86,23 @@ namespace Syndra_Balls_to_the_Wall
             }
         }
 
+        /// <summary>
+        /// The entry point of the application
+        /// </summary>
+        /// <param name="args">
+        /// The arguments.
+        /// </param>
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
+        /// <summary>
+        /// Handles the OnGameLoad of the CustomEvents.Game class.
+        /// </summary>
+        /// <param name="args">
+        /// The <see cref="EventArgs"/> instance containing the event data.
+        /// </param>
         static void Game_OnGameLoad(EventArgs args)
         {
             if (Player.ChampionName != "Syndra")
@@ -49,12 +117,15 @@ namespace Syndra_Balls_to_the_Wall
 
             CreateMenu();
 
+            OrbManager.Init();
+
             Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-           //Inter
-
         }
 
+        /// <summary>
+        /// Creates the menu.
+        /// </summary>
         private static void CreateMenu()
         {
             Menu = new Menu("Syndra Balls to the Wall", "Syndra Balls to the Wall", true);
@@ -72,6 +143,7 @@ namespace Syndra_Balls_to_the_Wall
             comboMenu.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             comboMenu.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             comboMenu.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+
             // all in
             Menu.AddSubMenu(comboMenu);
 
@@ -110,12 +182,18 @@ namespace Syndra_Balls_to_the_Wall
             Menu.AddToMainMenu();
         }
 
+        /// <summary>
+        /// Handles the OnDraw event for the Drawing class.
+        /// </summary>
+        /// <param name="args">
+        /// The <see cref="EventArgs"/> instance containing the event data.
+        /// </param>
         static void Drawing_OnDraw(EventArgs args)
         {
-            var = drawQ = Menu.Item("DrawQ").IsActive();
-            var = drawW = Menu.Item("DrawW").IsActive();
-            var = drawE = Menu.Item("DrawE").IsActive();
-            var = drawR = Menu.Item("DrawR").IsActive();
+            var drawQ = Menu.Item("DrawQ").IsActive();
+            var drawW = Menu.Item("DrawW").IsActive();
+            var drawE = Menu.Item("DrawE").IsActive();
+            var drawR = Menu.Item("DrawR").IsActive();
 
             if (drawQ)
             {
@@ -136,8 +214,19 @@ namespace Syndra_Balls_to_the_Wall
             {
                 Render.Circle.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Aqua : Color.Red);
             }
+
+            foreach (var orb in OrbManager.Spheres.Select(x => x.Position))
+            {
+                Render.Circle.DrawCircle(orb, 50, Color.Turquoise);
+            }
         }
 
+        /// <summary>
+        /// Game_s the on update.
+        /// </summary>
+        /// <param name="args">
+        /// The <see cref="EventArgs"/> instance containing the event data.
+        /// </param>
         static void Game_OnUpdate(EventArgs args)
         {
             switch (Orbwalker.ActiveMode)
@@ -157,21 +246,36 @@ namespace Syndra_Balls_to_the_Wall
             }
         }
 
+        /// <summary>
+        /// Does the last hit.
+        /// </summary>
         private static void DoLastHit()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Does the lane clear.
+        /// </summary>
         private static void DoLaneClear()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Does the harass.
+        /// </summary>
         private static void DoHarass()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Does the combo.
+        /// </summary>
+        /// <param name="b">
+        /// if set to <c>true</c> [b].
+        /// </param>
         private static void DoCombo(bool b)
         {
             throw new NotImplementedException();
