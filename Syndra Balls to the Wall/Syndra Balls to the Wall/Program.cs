@@ -110,10 +110,14 @@ namespace Syndra_Balls_to_the_Wall
                 return;
             }
 
-            Q = new Spell(SpellSlot.Q);
+            Q = new Spell(SpellSlot.Q, 825f);
             W = new Spell(SpellSlot.W);
             E = new Spell(SpellSlot.E);
             R = new Spell(SpellSlot.R);
+
+            Q.SetSkillshot(0.25f, 180, 1750, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(0.25f, 180, 1750, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(0.25f, 45 * 0.5f, 2500, false, SkillshotType.SkillshotCone);
 
             CreateMenu();
 
@@ -161,7 +165,7 @@ namespace Syndra_Balls_to_the_Wall
 
             var laneClearMenu = new Menu("Lane Clear Settings", "LaneClear");
             laneClearMenu.AddItem(new MenuItem("UseQLaneClear", "Use Q").SetValue(true));
-            laneClearMenu.AddItem(new MenuItem("UseQLaneClear", "Use W").SetValue(true));
+            laneClearMenu.AddItem(new MenuItem("UseWLaneClear", "Use W").SetValue(true));
             laneClearMenu.AddItem(new MenuItem("UseELaneClear", "Use E").SetValue(true));
             laneClearMenu.AddItem(new MenuItem("WCmana", "Wave Clear Mana % >=")).SetValue(new Slider(40, 1, 100));
             Menu.AddSubMenu(laneClearMenu);
@@ -235,7 +239,7 @@ namespace Syndra_Balls_to_the_Wall
                     DoCombo(true);
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    DoHarass();
+                    DoHarass(false);
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     DoLaneClear();
@@ -251,7 +255,15 @@ namespace Syndra_Balls_to_the_Wall
         /// </summary>
         private static void DoLastHit()
         {
-            throw new NotImplementedException();
+            var useQ = Menu.Item("UseQLastQ").GetValue<bool>();
+
+            if (useQ && Q.IsReady())
+            {
+                var minion = MinionManager.GetMinions(Q.Range)
+                    .FirstOrDefault(x => x.IsValidTarget(Q.Range) && Q.GetDamage(x) >= x.Health);
+
+                Q.Cast(minion);
+            }  
         }
 
         /// <summary>
@@ -259,15 +271,50 @@ namespace Syndra_Balls_to_the_Wall
         /// </summary>
         private static void DoLaneClear()
         {
-            throw new NotImplementedException();
+            var lcm = Menu.Item("WCmana").GetValue<Slider>().Value;
+
+            if (Player.Mana <= lcm)
+            {
+                return;
+            }
+
+            var qlc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
+            var wlc = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range);
+            var useqlc = Menu.Item("UseQLaneClear").GetValue<bool>();
+            var usewlc = Menu.Item("UseWLaneClear").GetValue<bool>();
+
+            if (Q.IsReady() && useqlc)
+            {
+                var qlck = Q.GetCircularFarmLocation(qlc, Q.Width);
+
+                if (qlck.MinionsHit >= 3)
+                {
+                    Q.Cast(qlck.Position);
+                }
+            }
+
+            if (W.IsReady() && usewlc)
+            {
+                var wlck = W.GetCircularFarmLocation(wlc, W.Width);
+
+                if (wlck.MinionsHit >= 3)
+                {
+                    W.Cast(wlck.Position);
+                }
+            }
         }
 
         /// <summary>
         /// Does the harass.
         /// </summary>
-        private static void DoHarass()
+        private static void DoHarass(bool toggle)
         {
-            throw new NotImplementedException();
+            if (toggle && Player.Mana < Menu.Item("HarassMana").GetValue<Slider>().Value)
+            {
+                return;
+            }
+
+            var target = TargetSelector.GetTarget()
         }
 
         /// <summary>
