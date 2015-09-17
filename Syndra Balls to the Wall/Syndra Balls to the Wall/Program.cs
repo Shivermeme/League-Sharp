@@ -329,7 +329,7 @@ namespace Syndra_Balls_to_the_Wall
         /// </summary>
         private static void DoHarass(bool toggle)
         {
-            if (toggle && Player.Mana < Menu.Item("HarassMana").GetValue<Slider>().Value)
+            if (toggle && Player.ManaPercent < Menu.Item("HarassMana").GetValue<Slider>().Value)
             {
                 return;
             }
