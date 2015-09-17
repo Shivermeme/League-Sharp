@@ -293,7 +293,7 @@ namespace Syndra_Balls_to_the_Wall
         {
             var lcm = Menu.Item("WCmana").GetValue<Slider>().Value;
 
-            if (Player.Mana <= lcm)
+            if (Player.ManaPercent <= lcm)
             {
                 return;
             }
