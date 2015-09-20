@@ -111,9 +111,9 @@ namespace Syndra_Balls_to_the_Wall
             }
 
             Q = new Spell(SpellSlot.Q, 825f);
-            W = new Spell(SpellSlot.W);
-            E = new Spell(SpellSlot.E);
-            R = new Spell(SpellSlot.R);
+            W = new Spell(SpellSlot.W, 925f);
+            E = new Spell(SpellSlot.E, 700f);
+            R = new Spell(SpellSlot.R, 675f);
 
             Q.SetSkillshot(0.25f, 180f, 1750f, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.25f, 180f, 1750f, false, SkillshotType.SkillshotCircle);
@@ -163,14 +163,16 @@ namespace Syndra_Balls_to_the_Wall
             comboMenu.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             comboMenu.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             comboMenu.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-
-            // all in
+            comboMenu.AddItem(new MenuItem("UseQECombo", "Use QE Combo").SetValue(true));
             Menu.AddSubMenu(comboMenu);
 
             var harassMenu = new Menu("Harass Settings", "Harass");
             harassMenu.AddItem(new MenuItem("UseQHarass", "Use Q Harass").SetValue(true));
             harassMenu.AddItem(new MenuItem("UseWHarass", "Use W to Harass").SetValue(true));
             harassMenu.AddItem(new MenuItem("UseEHarass", "Use E Harass").SetValue(true));
+            harassMenu.AddItem(new MenuItem("UseQEHarass", "Use QE Harass"));
+            harassMenu.AddItem(new MenuItem("Q if Enemy AA", "Harass Q Enemy AA").SetValue(true));
+            harassMenu.AddItem(new MenuItem("HarassMana", "Harass if mana > x %").SetValue(new Slider(30, 1, 100)));
             harassMenu.AddItem(
                 new MenuItem("HarassToggle", "Harass! (Toggle)").SetValue(new KeyBind(84, KeyBindType.Toggle)));
             Menu.AddSubMenu(harassMenu);
@@ -186,10 +188,17 @@ namespace Syndra_Balls_to_the_Wall
             laneClearMenu.AddItem(new MenuItem("WCmana", "Wave Clear Mana % >=")).SetValue(new Slider(40, 1, 100));
             Menu.AddSubMenu(laneClearMenu);
 
+            var jungleFarmMenu = new Menu("Jungle Clear Settings", "Jungle Clear");
+            jungleFarmMenu.AddItem(new MenuItem("UseQJungleClear", "UseQ").SetValue(true));
+            jungleFarmMenu.AddItem(new MenuItem("UseWJungleClear", "UseW").SetValue(true));
+            jungleFarmMenu.AddItem(new MenuItem("UseEJungleClear", "UseE").SetValue(true));
+            Menu.AddSubMenu(jungleFarmMenu);
+
             var killstealMenu = new Menu("Kill Steal Settings", "KS");
             killstealMenu.AddItem(new MenuItem("UseQKS", "Use Q").SetValue(true));
             killstealMenu.AddItem(new MenuItem("UseEKS", "Use E").SetValue(true));
             killstealMenu.AddItem(new MenuItem("UseRKS", "Use R").SetValue(true));
+            killstealMenu.AddItem(new MenuItem("UseQEKS", "Use QE KS").SetValue(true));
             Menu.AddSubMenu(killstealMenu);
 
             var drawingMenu = new Menu("Drawing Settings", "Drawings");
