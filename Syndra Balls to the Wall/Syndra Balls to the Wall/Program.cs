@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Runtime.InteropServices;
+
 namespace Syndra_Balls_to_the_Wall
 {
     using System;
@@ -166,6 +168,12 @@ namespace Syndra_Balls_to_the_Wall
             comboMenu.AddItem(new MenuItem("UseQECombo", "Use QE Combo").SetValue(true));
             Menu.AddSubMenu(comboMenu);
 
+            var rsettingsMenu = new Menu("R Settings", "Dont R");
+
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
+            rsettingsMenu.AddItem(new MenuItem(""))
+            
+
             var harassMenu = new Menu("Harass Settings", "Harass");
             harassMenu.AddItem(new MenuItem("UseQHarass", "Use Q Harass").SetValue(true));
             harassMenu.AddItem(new MenuItem("UseWHarass", "Use W to Harass").SetValue(true));
@@ -211,6 +219,15 @@ namespace Syndra_Balls_to_the_Wall
             var interruptMenu = new Menu("Interrupt Settings", "Interrupt!");
             interruptMenu.AddItem(new MenuItem("InterruptQE", "Interrupt with QE").SetValue(true));
             interruptMenu.AddItem(new MenuItem("InterruptDangerous", "Interrupt Only Dangerous").SetValue(false));
+
+            var miscMenu = new Menu("Misc", "Misc!");
+            miscMenu.AddItem(new MenuItem("AntiGap Closer", "Use On Gap Closer"));
+            Menu.AddSubMenu(miscMenu);
+
+            var qeMenu = new Menu("QESettings", "QE Settings");
+            qeMenu.AddItem(
+                new MenuItem("QETargetNearMouse", "QE Target Near Mouse").SetValue(new KeyBind(88, KeyBindType.Press)));
+            Menu.AddSubMenu(qeMenu);
 
             Menu.AddToMainMenu();
         }
@@ -354,7 +371,7 @@ namespace Syndra_Balls_to_the_Wall
         /// </param>
         private static void DoCombo(bool b)
         {
-            throw new NotImplementedException();
+            
         }
     }
 }
