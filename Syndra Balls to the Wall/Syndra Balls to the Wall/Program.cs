@@ -167,13 +167,7 @@ namespace Syndra_Balls_to_the_Wall
             comboMenu.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             comboMenu.AddItem(new MenuItem("UseQECombo", "Use QE Combo").SetValue(true));
             Menu.AddSubMenu(comboMenu);
-
-            var rsettingsMenu = new Menu("R Settings", "Dont R");
-
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
-            rsettingsMenu.AddItem(new MenuItem(""))
             
-
             var harassMenu = new Menu("Harass Settings", "Harass");
             harassMenu.AddItem(new MenuItem("UseQHarass", "Use Q Harass").SetValue(true));
             harassMenu.AddItem(new MenuItem("UseWHarass", "Use W to Harass").SetValue(true));
@@ -355,12 +349,12 @@ namespace Syndra_Balls_to_the_Wall
         /// </summary>
         private static void DoHarass(bool toggle)
         {
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+
             if (toggle && Player.ManaPercent < Menu.Item("HarassMana").GetValue<Slider>().Value)
             {
                 return;
             }
-
-            var target = TargetSelector.GetTarget()
         }
 
         /// <summary>
